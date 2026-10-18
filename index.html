@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multi-Language IDE</title>
+    
+    <!-- FAVICON CHỮ M MÀU VÀNG -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%23FFD700%22 font-weight=%22bold%22 font-family=%22Arial,sans-serif%22>M</text></svg>">
+    
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; background: #121212; color: #e0e0e0; overflow: hidden; user-select: none; }
@@ -94,7 +98,7 @@ int main() {
             document.getElementById('outputHeader').style.display = 'flex';
             document.getElementById('outputView').classList.add('active');
 
-            // Gộp HTML và JavaScript trực tiếp vào khung hiển thị (không còn khung xanh terminal phía dưới)
+            // Gộp HTML và JavaScript trực tiếp vào khung hiển thị
             const combinedOutput = `
             <!DOCTYPE html>
             <html>
@@ -113,22 +117,3 @@ int main() {
                         console.error(e);
                     }
                 <\/script>
-            </body>
-            </html>
-            `;
-
-            const iframeDoc = document.getElementById('unifiedResult').contentDocument;
-            iframeDoc.open();
-            iframeDoc.write(combinedOutput);
-            iframeDoc.close();
-        }
-
-        function goBack() {
-            // Quay lại màn hình nhập liệu
-            document.getElementById('mainHeader').style.display = 'flex';
-            document.getElementById('outputHeader').style.display = 'none';
-            document.getElementById('outputView').classList.remove('active');
-        }
-    </script>
-</body>
-</html>
