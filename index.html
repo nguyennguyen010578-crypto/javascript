@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Language IDE</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; background: #121212; color: #e0e0e0; overflow: hidden; user-select: none; }
+        
+        /* Header chung */
+        header { background: #1e1e1e; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; z-index: 10; }
+        .run-btn { background: #04AA6D; color: #fff; border: none; padding: 8px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 15px; }
+        .run-btn:hover { background: #059862; }
+        
+        .back-btn { background: #333; color: #fff; border: 1px solid #555; padding: 8px 18px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 14px; }
+        .back-btn:hover { background: #444; }
+
+        .container { display: flex; flex: 1; padding: 8px; overflow: hidden; position: relative; }
+        
+        /* 1. MÀN HÌNH NHẬP CODE (3 Ô) */
+        .editor-view { display: flex; flex: 1; gap: 8px; height: 100%; width: 100%; }
+        .panel-box { flex: 1; display: flex; flex-direction: column; background: #1e1e1e; border: 1px solid #333; border-radius: 4px; overflow: hidden; }
+        .panel-header { background: #252526; padding: 6px 10px; font-size: 13px; font-weight: bold; border-bottom: 1px solid #333; }
+        .lbl-html { color: #e34c26; } .lbl-cpp { color: #38bdf8; } .lbl-js { color: #f7df1e; }
+        textarea { flex: 1; border: none; padding: 12px; font-family: monospace; font-size: 14px; resize: none; outline: none; color: #d4d4d4; background: #1e1e1e; user-select: text !important; line-height: 1.4; }
+
+        /* 2. MÀN HÌNH CHẠY KẾT QUẢ FULL SCREEN */
+        .output-view { 
+            display: none; 
+            position: absolute; 
+            top: 0; left: 0; width: 100%; height: 100%; 
+            background: #1e1e1e; 
+            z-index: 20; 
+            flex-direction: column; 
+        }
+        .output-view.active { display: flex; }
+        iframe { flex: 1; border: none; background: white; width: 100%; height: 100%; }
+    </style>
+</head>
+<body>
+    <!-- Header màn hình nhập liệu -->
+    <header id="mainHeader">
+        <button class="run-btn" onclick="runCode()">Run ❯</button>
+        <div style="font-weight:bold; font-size: 14px;">Trình biên dịch Multi-Language</div>
+    </header>
+
+    <!-- Header màn hình kết quả -->
+    <header id="outputHeader" style="display: none;">
+        <button class="back-btn" onclick="goBack()">❮ Sửa Code</button>
+        <div style="font-weight:bold; font-size: 14px; color: #04AA6D;">Màn hình chạy kết quả (Full)</div>
+    </header>
+
+    <div class="container">
+        <!-- 3 Ô NHẬP CODE -->
+        <div class="editor-view" id="editorView">
+            <div class="panel-box">
+                <div class="panel-header"><span class="lbl-html">🌐 HTML</span></div>
+                <textarea id="htmlCode" spellcheck="false" placeholder="Nhập HTML..."><h1>Trang Web Tích Hợp</h1>
+<p id="text">Nhấn nút bên dưới để chạy JS:</p>
+<button onclick="doiMau()">Đổi Màu</button></textarea>
+            </div>
+            <div class="panel-box">
+                <div class="panel-header"><span class="lbl-cpp">⚙️ C++</span></div>
+                <textarea id="cppCode" spellcheck="false" placeholder="Nhập C++...">#include <iostream>
+using namespace std;
+int main() {
+    cout << "[C++] He thong da khoi dong thanh cong!" << endl;
+    return 0;
+}</textarea>
+            </div>
+            <div class="panel-box">
+                <div class="panel-header"><span class="lbl-js">⚡ JavaScript</span></div>
+                <textarea id="jsCode" spellcheck="false" placeholder="Nhập JavaScript...">function doiMau() {
+    document.getElementById('text').style.color = '#04AA6D';
+    alert('JavaScript chạy thành công!');
+}</textarea>
+            </div>
+        </div>
+
+        <!-- MÀN HÌNH CHẠY FULL SCREEN -->
+        <div class="output-view" id="outputView">
+            <iframe id="unifiedResult"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function runCode() {
+            const htmlVal = document.getElementById('htmlCode').value;
+            const jsVal = document.getElementById('jsCode').value;
+
+            // Chuyển sang màn hình chạy Full Screen
+            document.getElementById('mainHeader').style.display = 'none';
+            document.getElementById('outputHeader').style.display = 'flex';
+            document.getElementById('outputView').classList.add('active');
+
+            // Gộp HTML và JavaScript trực tiếp vào khung hiển thị (không còn khung xanh terminal phía dưới)
+            const combinedOutput = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: sans-serif; margin: 0; padding: 20px; background: #fff; color: #333; }
+                </style>
+            </head>
+            <body>
+                ${htmlVal}
+                <script>
+                    try {
+                        ${jsVal}
+                    } catch(e) {
+                        console.error(e);
+                    }
+                <\/script>
+            </body>
+            </html>
+            `;
+
+            const iframeDoc = document.getElementById('unifiedResult').contentDocument;
+            iframeDoc.open();
+            iframeDoc.write(combinedOutput);
+            iframeDoc.close();
+        }
+
+        function goBack() {
+            // Quay lại màn hình nhập liệu
+            document.getElementById('mainHeader').style.display = 'flex';
+            document.getElementById('outputHeader').style.display = 'none';
+            document.getElementById('outputView').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
