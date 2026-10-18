@@ -117,3 +117,22 @@ int main() {
                         console.error(e);
                     }
                 <\/script>
+            </body>
+            </html>
+            `;
+
+            const iframeDoc = document.getElementById('unifiedResult').contentDocument;
+            iframeDoc.open();
+            iframeDoc.write(combinedOutput);
+            iframeDoc.close();
+        }
+
+        function goBack() {
+            // Quay lại màn hình nhập liệu
+            document.getElementById('mainHeader').style.display = 'flex';
+            document.getElementById('outputHeader').style.display = 'none';
+            document.getElementById('outputView').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
