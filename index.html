@@ -21,12 +21,14 @@
 
         .container { display: flex; flex: 1; padding: 8px; overflow: hidden; position: relative; }
         
+        /* 1. MÀN HÌNH NHẬP CODE (3 Ô) */
         .editor-view { display: flex; flex: 1; gap: 8px; height: 100%; width: 100%; }
         .panel-box { flex: 1; display: flex; flex-direction: column; background: #1e1e1e; border: 1px solid #333; border-radius: 4px; overflow: hidden; }
         .panel-header { background: #252526; padding: 6px 10px; font-size: 13px; font-weight: bold; border-bottom: 1px solid #333; }
-        .lbl-html { color: #e34c26; } .lbl-cpp { color: #38bdf8; } .lbl-js { color: #f7df1e; }
+        .lbl-html { color: #e34c26; } .lbl-css { color: #264de4; } .lbl-js { color: #f7df1e; }
         textarea { flex: 1; border: none; padding: 12px; font-family: monospace; font-size: 14px; resize: none; outline: none; color: #d4d4d4; background: #1e1e1e; user-select: text !important; line-height: 1.4; }
 
+        /* 2. MÀN HÌNH CHẠY KẾT QUẢ FULL SCREEN */
         .output-view { 
             display: none; 
             position: absolute; 
@@ -42,7 +44,7 @@
 <body>
     <header id="mainHeader">
         <button class="run-btn" onclick="runCode()">Run ❯</button>
-        <div style="font-weight:bold; font-size: 14px;">Trình biên dịch Multi-Language</div>
+        <div style="font-weight:bold; font-size: 14px;">Trình biên dịch Multi-Language (HTML / CSS / JS)</div>
     </header>
 
     <header id="outputHeader" style="display: none;">
@@ -51,6 +53,7 @@
     </header>
 
     <div class="container">
+        <!-- 3 Ô NHẬP CODE (HTML, CSS, JS) -->
         <div class="editor-view" id="editorView">
             <div class="panel-box">
                 <div class="panel-header"><span class="lbl-html">🌐 HTML</span></div>
@@ -59,23 +62,28 @@
 <button onclick="doiMau()">Đổi Màu</button></textarea>
             </div>
             <div class="panel-box">
-                <div class="panel-header"><span class="lbl-cpp">⚙️ C++</span></div>
-                <textarea id="cppCode" spellcheck="false" placeholder="Nhập C++...">#include <iostream>
-using namespace std;
-int main() {
-    cout << "[C++] He thong da khoi dong thanh cong!" << endl;
-    return 0;
+                <div class="panel-header"><span class="lbl-css">🎨 CSS</span></div>
+                <textarea id="cssCode" spellcheck="false" placeholder="Nhập CSS...">h1 {
+    color: #04AA6D;
+}
+button {
+    background-color: #04AA6D;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
 }</textarea>
             </div>
             <div class="panel-box">
                 <div class="panel-header"><span class="lbl-js">⚡ JavaScript</span></div>
                 <textarea id="jsCode" spellcheck="false" placeholder="Nhập JavaScript...">function doiMau() {
-    document.getElementById('text').style.color = '#04AA6D';
-    console.log('[JS Log]: Đã đổi màu chữ thành công!');
+    document.getElementById('text').style.color = '#e34c26';
 }</textarea>
             </div>
         </div>
 
+        <!-- MÀN HÌNH CHẠY FULL SCREEN -->
         <div class="output-view" id="outputView">
             <iframe id="unifiedResult"></iframe>
         </div>
@@ -84,58 +92,28 @@ int main() {
     <script>
         function runCode() {
             const htmlVal = document.getElementById('htmlCode').value;
-            const cppVal = document.getElementById('cppCode').value;
+            const cssVal = document.getElementById('cssCode').value;
             const jsVal = document.getElementById('jsCode').value;
 
             document.getElementById('mainHeader').style.display = 'none';
             document.getElementById('outputHeader').style.display = 'flex';
             document.getElementById('outputView').classList.add('active');
 
-            let cppLogs = "";
-            const cppMatches = cppVal.match(/cout\s*<<\s*(.*?)(?:<<|\n|;)/g);
-            if (cppMatches) {
-                cppMatches.forEach(m => {
-                    let cleanText = m.replace(/cout\s*<</, '').trim();
-                    if (cleanText.includes('"')) {
-                        let text = cleanText.match(/"(.*?)"/);
-                        if (text) cppLogs += text[1] + "\n";
-                    }
-                });
-            } else {
-                cppLogs = "C++ executed successfully.\n";
-            }
-
+            // Gộp HTML, CSS và JavaScript trực tiếp, không còn khung terminal xanh
             const combinedOutput = `
             <!DOCTYPE html>
             <html>
             <head>
                 <meta charset="UTF-8">
                 <style>
-                    body { font-family: sans-serif; margin: 0; padding: 20px; background: #fff; color: #333; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
-                    .preview-section { flex: 1; padding-bottom: 15px; border-bottom: 1px solid #ddd; margin-bottom: 15px; overflow-y: auto; }
-                    .terminal-section { height: 160px; background: #0f172a; color: #4ade80; font-family: monospace; padding: 12px; border-radius: 6px; overflow-y: auto; font-size: 13px; white-space: pre-wrap; }
-                    .terminal-header { color: #94a3b8; font-weight: bold; margin-bottom: 6px; border-bottom: 1px solid #334155; padding-bottom: 4px; }
+                    body { font-family: sans-serif; margin: 0; padding: 20px; background: #fff; color: #333; }
+                    /* Nhúng CSS trực tiếp */
+                    ${cssVal}
                 </style>
             </head>
             <body>
-                <div class="preview-section">
-                    ${htmlVal}
-                </div>
-                <div class="terminal-section">
-                    <div class="terminal-header">&gt; Terminal & Console Output</div>
-                    <div id="terminal-content"></div>
-                </div>
+                ${htmlVal}
                 <script>
-                    const term = document.getElementById('terminal-content');
-                    term.innerText += "${cppLogs}";
-
-                    const originalLog = console.log;
-                    console.log = function(msg) {
-                        term.innerText += msg + "\\n";
-                        originalLog(msg);
-                    };
-
-                    // Chạy JavaScript bình thường, ẩn hoàn toàn lỗi nếu có
                     try {
                         ${jsVal}
                     } catch(e) {}
